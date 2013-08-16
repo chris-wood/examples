@@ -8873,9 +8873,6 @@ window.me = window.me || {};
 		var maintainAspectRatio = true;
 		var devicePixelRatio = null;
 
-		var originalWidth = 0;
-		var originalHeight = 0;
-
 		// max display size
 		var maxWidth = Infinity;
 		var maxHeight = Infinity;
@@ -9210,11 +9207,7 @@ window.me = window.me || {};
 				scaleY *= me.video.getDevicePixelRatio();
 			
 				// scale if required
-				if ((scaleX!==1 || scaleY !==1) && originalWidth==0 && originalHeight==0) {
-
-					// record original canvas size before scaling
-					originalWidth = canvas.width;
-					originalHeight = canvas.height;
+				if (scaleX!==1 || scaleY !==1) {
 
 					if (deferResizeId >= 0) {
 						// cancel any previous pending resize
