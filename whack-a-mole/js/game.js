@@ -10,28 +10,43 @@
 var game = {
 
 	/**
+	 * local game data 
+	 */
+	data : {
+		// score information
+		score : 0,
+		hiscore : 0,
+	},
+
+	/**
 	 * some Initialization
 	 */
 	onload: function() {
 		
-		// enable dirtyRegion
-		me.sys.dirtyRegion = true;
 		
 		// we don't need the default 60fps for a whack-a-mole !
 		me.sys.fps = 30;
-		
-		// debug flags
-		//me.debug.renderDirty = true;
-		//me.debug.renderHitBox = true;
-		
+				
 		// initialize the video
 		if (!me.video.init('screen', 1024, 768, true ,'auto')) {
 			alert("Sorry but your browser does not support html5 canvas. Please try with another one!");
 			return;
 		};
+        
+        // add "#debug" to the URL to enable the debug Panel
+		if (document.location.hash === "#debug") {
+			window.onReady(function () {
+				me.plugin.register.defer(this, debugPanel, "debug");
+			});
+		}
 					
 		// initialize the "sound engine"
 		me.audio.init("mp3,ogg");
+
+		// add a new hiscore key if not yet defined
+		me.save.add({hiscore : 0});
+		// set the local hiscore value
+		game.data.hiscore = me.save.hiscore;
 		
 		// set all ressources to be loaded
 		me.loader.onload = this.loaded.bind(this);

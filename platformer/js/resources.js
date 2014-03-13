@@ -14,24 +14,24 @@ game.resources = [
 	 * {name: "example01", type: "tmx", src: "data/map/example01.tmx"},
 	 * {name: "example01", type: "tmx", src: "data/map/example01.json"},
  	 */
-	{name: "map1",			type: "tmx",	src: "data/map/map1.json"},
+	{name: "map1",			type: "tmx",	src: "data/map/map1.tmx"},
 	{name: "map2",			type: "tmx",	src: "data/map/map2.tmx"},
 
 
 	/* Background music. 
 	 * @example
-	 * {name: "example_bgm", type: "audio", src: "data/bgm/", channel : 1},
+	 * {name: "example_bgm", type: "audio", src: "data/bgm/" },
 	 */	
-	{name: "DST-GameForest",type: "audio",	src: "data/bgm/",	channel : 1},
+	{name: "DST-GameForest",type: "audio",	src: "data/bgm/" },
 	
 	/* Sound effects. 
 	 * @example
-	 * {name: "example_sfx", type: "audio", src: "data/sfx/", channel : 2}
+	 * {name: "example_sfx", type: "audio", src: "data/sfx/"}
 	 */
-	{name: "cling",			type: "audio",	src: "data/sfx/",	channel : 2},
-	{name: "die",			type: "audio",	src: "data/sfx/",	channel : 1},
-	{name: "enemykill",		type: "audio",	src: "data/sfx/",	channel : 1},
-	{name: "jump",			type: "audio",	src: "data/sfx/",	channel : 2},
+	{name: "cling", type: "audio", src: "data/sfx/"},
+	{name: "die", type: "audio", src: "data/sfx/"},
+	{name: "enemykill", type: "audio", src: "data/sfx/"},
+	{name: "jump", type: "audio", src: "data/sfx/"},
 
 	
 	/* Atlases 

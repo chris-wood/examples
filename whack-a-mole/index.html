@@ -8,11 +8,20 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
     </head>
     <body>
-        <div id="screen"></div>
-		<script type="text/javascript" src="melonJS-0.9.9.js"></script>
+        <!-- Canvas placeholder -->
+		<div id="screen"></div>
+		
+        <!-- melonJS Library -->
+		<script type="text/javascript" src="lib/melonJS-1.0.0-min.js"></script>
+        
+		<!-- Plugin(s) -->
+		<script type="text/javascript" src="lib/plugins/debug/debugPanel.js"></script>
+		
+		<!-- Game Scripts -->
 		<script type="text/javascript" src="js/game.js"></script>
 		<script type="text/javascript" src="js/resources.js"></script>
 		<script type="text/javascript" src="js/entities/entities.js"></script>
+		<script type="text/javascript" src="js/entities/HUD.js"></script>
 		<script type="text/javascript" src="js/screens/play.js"></script>
 		<script type="text/javascript">
 			/* Bootstrap */
@@ -20,7 +29,7 @@
 				game.onload();
 
 				// Mobile browser hacks
-				if (me.sys.isMobile && !navigator.isCocoonJS) {
+				if (me.device.isMobile && !navigator.isCocoonJS) {
 					// Prevent the webview from moving on a swipe
 					window.document.addEventListener("touchmove", function (e) {
 						e.preventDefault();

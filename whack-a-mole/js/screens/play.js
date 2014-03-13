@@ -3,7 +3,9 @@ game.PlayScreen = me.ScreenObject.extend({
 	 *  action to perform on state change
 	 */
 	onResetEvent: function() {	
-      me.game.reset();
+      	
+      	me.game.reset();
+		
 		// add the background & foreground
 		// add the foreground
 		var background_sprite10 = new me.SpriteObject (0, 0,   me.loader.getImage("background"));
@@ -28,24 +30,25 @@ game.PlayScreen = me.ScreenObject.extend({
 		var moleManager = new game.MoleManager(0, 0);
 			
 		// add all objects
-		me.game.add (background_sprite10, 0);
-		me.game.add (background_sprite11, 0);
-		me.game.add (background_sprite20, 0);
-		me.game.add (background_sprite21, 0);
-		me.game.add (background_sprite30, 0);
-		me.game.add (background_sprite31, 0);
+		me.game.world.addChild (background_sprite10, 0);
+		me.game.world.addChild (background_sprite11, 0);
+		me.game.world.addChild (background_sprite20, 0);
+		me.game.world.addChild (background_sprite21, 0);
+		me.game.world.addChild (background_sprite30, 0);
+		me.game.world.addChild (background_sprite31, 0);
 		
-		me.game.add (grass_upper_1, 10);
-		me.game.add (grass_lower_1, 20);
-		me.game.add (grass_upper_2, 30);
-		me.game.add (grass_lower_2, 40);
-		me.game.add (grass_upper_3, 50);
-		me.game.add (grass_lower_3, 60);
-		me.game.add (moleManager, 0);
+		me.game.world.addChild (grass_upper_1, 10);
+		me.game.world.addChild (grass_lower_1, 20);
+		me.game.world.addChild (grass_upper_2, 30);
+		me.game.world.addChild (grass_lower_2, 40);
+		me.game.world.addChild (grass_upper_3, 50);
+		me.game.world.addChild (grass_lower_3, 60);
+		me.game.world.addChild (moleManager, 0);
 		
-		// make sure everything is sorted
-		me.game.sort();
-		
+		// add our HUD (scores/hiscore)
+        this.HUD = new game.HUD.Container();
+		me.game.world.addChild(this.HUD);
+
 		// start the main soundtrack
 		me.audio.playTrack("whack");
 	},
@@ -55,6 +58,10 @@ game.PlayScreen = me.ScreenObject.extend({
 	 *  action to perform when leaving this screen (state change)
 	 */
 	onDestroyEvent: function() {
-	  me.audio.stopTrack();
+        // remove the HUD from the game world
+        me.game.world.removeChild(this.HUD);
+
+        // stop some music
+        me.audio.stopTrack();
 	}
 });

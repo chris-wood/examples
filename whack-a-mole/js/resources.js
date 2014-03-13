@@ -32,6 +32,14 @@ game.resources = [
 		type: "image",	
 		src:  "data/img/sprites/mole.png"
 	},
+
+	// a basic ASCII font
+	{
+		name: "atascii",
+		type:"image",
+		src: "data/img/sprites/atascii_24px.png"
+	},
+
 	// main music track 
 	{  
 		name: "whack",
@@ -42,14 +50,12 @@ game.resources = [
 	/*{  
 		name: "laugh",
 		type: "audio",
-		src: "data/sfx/",
-		channel : 4
+		src: "data/sfx/"
 	},*/
 	// ow audio FX
 	{  
 		name: "ow",
 		type: "audio",
-		src: "data/sfx/",
-		channel : 2
+		src: "data/sfx/"
 	}
 ];

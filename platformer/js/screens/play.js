@@ -6,13 +6,26 @@ game.PlayScreen = me.ScreenObject.extend({
       // load a level
 		me.levelDirector.loadLevel("map1");
 		
-		// add a default HUD to the game mngr
-		me.game.addHUD(0,560,800,40);
+		// reset the score
+		game.data.score = 0;
 		
-		// add a new HUD item 
-		me.game.HUD.addItem("score", new game.ScoreObject(790,00));
+		// add our HUD to the game world
+        this.HUD = new game.HUD.Container();	
+		me.game.world.addChild(this.HUD);
 		
 		// play some music
 		me.audio.playTrack("DST-GameForest");
+	},
+	
+	/**	
+	 *  action to perform on state change
+	 */
+	onDestroyEvent: function() {	
+	
+		// remove the HUD from the game world
+		me.game.world.removeChild(this.HUD);
+		
+		// stop some music
+		me.audio.stopTrack("DST-GameForest");
 	}
 });
