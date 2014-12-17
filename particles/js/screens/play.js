@@ -7,7 +7,7 @@ game.PlayScreen = me.ScreenObject.extend({
         me.game.viewport.bounds.resize(2000, 2000);
 
         // add background to the game world
-        me.game.world.addChild(new me.ImageLayer("background", 0, 0, "grid", 0, 0));
+        me.game.world.addChild(new me.ImageLayer("background", 0, 0, "grid", 1));
 
         var leftContainer = document.querySelector("#leftPanel .controls");
         var rightContainer = document.querySelector("#rightPanel .controls");
@@ -42,7 +42,8 @@ game.PlayScreen = me.ScreenObject.extend({
                     } else {
                         pos = mousepos;
                     }
-                    obj.pos.setV(pos);
+                    obj.pos.x = pos.x - obj.hWidth;
+                    obj.pos.y = pos.y - obj.hHeight;
                 }
 
                 me.event.publish("propertyChanged", [ game.EmitterController.emitter ]);

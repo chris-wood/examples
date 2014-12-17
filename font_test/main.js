@@ -6,7 +6,7 @@ var game = {
      */
      onload: function() {
         // init the video
-        if (!me.video.init('screen', 640, 480)) {
+        if (!me.video.init('screen', me.video.CANVAS, 640, 480)) {
             alert("Sorry but your browser does not support html 5 canvas. Please try with another one!");
             return;
         }
@@ -49,7 +49,7 @@ var FontTest = me.Renderable.extend ({
 
     // constructor
     init: function() {
-        this.parent(new me.Vector2d(), me.video.getWidth(), me.video.getHeight());
+        this._super(me.Renderable, 'init', [0, 0, me.video.renderer.getWidth(), me.video.renderer.getHeight()]);
 
         // a default white color object
         this.color = new me.Color(255, 255, 255);
@@ -71,14 +71,15 @@ var FontTest = me.Renderable.extend ({
     },
  
     // draw function
-    draw : function(context) {
+    draw : function(renderer) {
         
         var y_pos = 0;
         
         // font size test
         this.font.textAlign = "left";
         this.font.lineWidth = "2";
-        
+        this.font.setOpacity (0.5);
+        var context = renderer.getContext();
         for (var i = 8; i < 48; i += 8) {
             this.font.setFont('Arial', i, this.color.toHex());
             this.font.draw(context, "Arial Text " + i + "px !" , 5 , y_pos );
@@ -94,12 +95,15 @@ var FontTest = me.Renderable.extend ({
         y_pos = 0;
         this.bFont.textAlign = "right";
         for (var i = 1;i<5;i++) {
+            this.bFont.setOpacity (0.2 * i);
             this.bFont.resize(i);
-            this.bFont.draw(context, "BITMAP TEST" , me.video.getWidth() , y_pos );
+            this.bFont.draw(renderer, "BITMAP TEST" , me.video.renderer.getWidth() , y_pos );
             y_pos+=this.bFont.measureText(context, "DUMMY").height;
             
         }
 
+        this.font.setOpacity(1);
+        this.bFont.setOpacity(1);
         
         // font baseline test
         this.font.setFont('Arial', 16, this.color.toHex());
@@ -108,7 +112,7 @@ var FontTest = me.Renderable.extend ({
         // Draw the baseline
         context.beginPath();
         context.moveTo(0, baseline + 0.5);
-        context.lineTo(me.video.getWidth(), baseline + 0.5);
+        context.lineTo(me.video.renderer.getWidth(), baseline + 0.5);
         context.strokeStyle = "red";
         context.stroke();
 
@@ -146,14 +150,14 @@ var FontTest = me.Renderable.extend ({
         this.bFont.textAlign = "center";
         var text = "THIS IS A MULTILINE\n BITMAP FONT WITH MELONJS\nAND IT WORKS";
         this.bFont.resize(2);
-        this.bFont.draw(context, text + "\n" + text, 400, 230);
+        this.bFont.draw(renderer, text + "\n" + text, 400, 230);
         
         // bFont  test        
         this.bFont.textAlign = "right";
         var text = "ANOTHER FANCY MULTILINE\n BITMAP FONT WITH MELONJS\nAND IT STILL WORKS";
         this.bFont.lineHeight = 1.2;
         this.bFont.resize(3);
-        this.bFont.draw(context, text, 640, 400);
+        this.bFont.draw(renderer, text, 640, 400);
         this.bFont.lineHeight = 1.0;
         
         // baseline test with bitmap font
@@ -165,7 +169,7 @@ var FontTest = me.Renderable.extend ({
         // Draw the baseline
         context.beginPath();
         context.moveTo(0, baseline + 0.5);
-        context.lineTo(me.video.getWidth(), baseline + 0.5);
+        context.lineTo(me.video.renderer.getWidth(), baseline + 0.5);
         context.strokeStyle = "red";
         context.stroke();
         
@@ -173,7 +177,7 @@ var FontTest = me.Renderable.extend ({
         for (var i = 0; i < baselines.length; i++) {
             var text = baselines[i].toUpperCase();
             this.bFont.textBaseline = baselines[i];
-            this.bFont.draw(context, text, x_pos, baseline);
+            this.bFont.draw(renderer, text, x_pos, baseline);
             x_pos+=this.bFont.measureText(context, text + "@@@").width + 8;
         }
         

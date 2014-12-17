@@ -64,7 +64,7 @@
 
     pe.NumberInputWidget = pe.WidgetBase.extend({
         init : function(propertyName, settings) {
-            this.parent(propertyName);
+            this._super(pe.WidgetBase, 'init', [propertyName]);
             settings = settings || {};
 
             var container = document.createElement("div");
@@ -121,7 +121,7 @@
 
     pe.TextInputWidget = pe.WidgetBase.extend({
         init : function(propertyName) {
-            this.parent(propertyName);
+            this._super(pe.WidgetBase, 'init', [propertyName]);
 
             var input = this.input = document.createElement("input");
             input.setAttribute("type", "text");
@@ -140,7 +140,7 @@
 
     pe.BooleanInputWidget = pe.WidgetBase.extend({
         init : function(propertyName) {
-            this.parent(propertyName);
+            this._super(pe.WidgetBase, 'init', [propertyName]);
 
             var input = this.input = document.createElement("input");
             input.setAttribute("type", "checkbox");
@@ -157,7 +157,7 @@
 
     pe.ImageSelectionWidget = pe.WidgetBase.extend({
         init : function(propertyName, resourceList) {
-            this.parent(propertyName);
+            this._super(pe.WidgetBase, 'init', [propertyName]);
 
             var select = this.select = document.createElement("select");
             select.addEventListener("change", this.onChange.bind(this));
@@ -196,7 +196,7 @@
 
     pe.ShapeWidget = pe.WidgetBase.extend({
         init : function() {
-            this.parent("");
+            this._super(pe.WidgetBase, 'init', [""]);
 
             this.shape = new pe.ShapeWidget.Helper("rgba(255, 86, 86, 0.3)");
             this.dragHandler = new pe.DragHandler(new me.Color(255, 86, 86, 1));
@@ -214,7 +214,7 @@
             var object = this.object;
             if (object) {
                 pos.sub(object.pos).clampSelf(0, Infinity);
-                object.resize(pos.x * 2, pos.y * 2);
+                object.resize(pos.x, pos.y);
                 me.event.publish("propertyChanged", [ object ]);
             }
         },
@@ -244,27 +244,27 @@
             if (object) {
                 this.dragHandler.floating = this.shape.floating = object.floating;
                 this.shape.setShape(object.pos, object.width, object.height);
-                this.dragHandler.setPosition(object.pos.x + object.hWidth, object.pos.y + object.hHeight);
+                this.dragHandler.setPosition(object.pos.x + object.width, object.pos.y + object.height);
             }
         }
     });
 
     pe.ShapeWidget.Helper = me.Renderable.extend({
         init : function(color) {
-            this.parent(new me.Vector2d(0, 0), 0, 0);
+            this._super(me.Renderable, 'init', [0, 0, 0, 0]);
             this.z = Infinity;
             this.color = color;
         },
         setShape : function(v, w, h) {
             this.resize(w, h);
-            this.pos.set(v.x - this.hWidth, v.y - this.hHeight);
+            this.pos.set(v.x, v.y);
             return this;
         },
-        draw : function(context) {
-            context.fillStyle = this.color;
-            context.strokeStyle = this.color;
-            context.fillRect(this.left, this.top, this.width, this.height);
-            context.strokeRect(this.left, this.top, this.width, this.height);
+        draw : function(renderer) {
+            renderer.setColor(this.color);
+            renderer.fillRect(this.left, this.top, this.width, this.height);
+            renderer.setLineWidth(1);
+            renderer.strokeRect(this.left, this.top, this.width, this.height);
         }
     });
 
@@ -272,7 +272,7 @@
         init : function(color) {
             this.originalSize = 40;
             this.createGradients(color, this.originalSize);
-            this.parent(new me.Vector2d(0, 0), this.originalSize, this.originalSize);
+            this._super(me.Renderable, 'init', [0, 0, this.originalSize, this.originalSize]);
             this.z = Infinity;
             this.dragging = false;
             this.grabOffset = new me.Vector2d(0, 0);
@@ -280,11 +280,14 @@
             this._startDrag = this.startDrag.bind(this);
             this._stopDrag = this.stopDrag.bind(this);
             this._drag = this.drag.bind(this);
+
+            this.onDrag = function() {};
+
             me.input.registerPointerEvent("pointerup", me.game.viewport, this._stopDrag);
             me.input.registerPointerEvent("pointermove", me.game.viewport, this._drag);
         },
         createGradients : function(color, size) {
-            var context = me.video.getSystemContext();
+            var context = me.video.renderer.getContext();
             var bigGradient = this.bigGradient = context.createRadialGradient(0, 0, 0, 0, 0, size / 2);
             var smallGradient = this.smallGradient = context.createRadialGradient(0, 0, 0, 0, 0, size / 4);
 
@@ -318,7 +321,7 @@
             (container || this.ancestor || me.game.world).removeChild(this);
         },
         setPosition : function(x, y) {
-            this.pos.set(x - this.hWidth, y - this.hHeight);
+            this.pos.set(x - (this.width / 2), y - (this.height / 2));
         },
         startDrag : function(event) {
             this.dragging = true;
@@ -349,32 +352,24 @@
         drag : function(event) {
             if (this.dragging) {
                 var pos = me.input.mouse.pos.clone().sub(this.grabOffset);
-                pos.x += this.hWidth;
-                pos.y += this.hHeight;
+                pos.x += (this.width / 2);
+                pos.y += (this.height / 2);
                 this.onDrag(pos);
                 return false;
             }
         },
-        onDrag : function(pos) {
-        },
-        draw : function(context, rect) {
-            context.save();
-            // context.strokeStyle = this.color;
-            context.fillStyle = this.color;
-            context.beginPath();
-            context.translate(this.pos.x + this.hWidth, this.pos.y + this.hHeight);
-            context.arc(0, 0, this.hWidth, 0, Math.PI * 2);
-            // context.stroke();
-            // context.globalAlpha = 0.3;
-            context.fill();
-            context.closePath();
-            context.restore();
+        draw : function(renderer) {
+            renderer.save();
+            var context = renderer.getContext();
+            context.fillStyle = context.strokeStyle = this.color;
+            renderer.fillArc(this.pos.x, this.pos.y, this.hWidth, 0, Math.PI * 2);
+            renderer.restore();
         }
     });
 
     pe.VectorWidget = pe.WidgetBase.extend({
         init : function(name, color) {
-            this.parent("");
+            this._super(pe.WidgetBase, 'init', [""]);
             this.origin = new me.Vector2d(0, 0);
             this.vector = new me.Vector2d(0, 0);
 
@@ -397,7 +392,8 @@
         onDrag : function(pos) {
             var object = this.object;
             if (object) {
-                pos.sub(object.pos);
+                pos.x -= object.pos.x + (object.width / 2);
+                pos.y -= object.pos.y + (object.height / 2);
                 var x = pos.x;
                 var y = pos.y;
                 if (x !== this.vector.x || y !== this.vector.y) {
@@ -432,7 +428,7 @@
             var object = this.object;
             if (object) {
                 this.dragHandler.floating = this.shape.floating = object.floating;
-                this.origin.setV(object.pos);
+                this.origin.set(object.pos.x + (object.width / 2), object.pos.y + (object.height / 2));
                 this.onSync(object);
                 this.shape.setShape(this.origin, this.vector.x, this.vector.y);
             }
@@ -445,7 +441,7 @@
 
     pe.VectorWidget.Helper = me.Renderable.extend({
         init : function(widget, color) {
-            this.parent(new me.Vector2d(0, 0), 0, 0);
+            this._super(me.Renderable, 'init', [0, 0, 0, 0]);
             this.widget = widget;
             this.z = Infinity;
             this.color = color.toRGBA();
@@ -457,25 +453,20 @@
             this.resize(Math.abs(w), Math.abs(h));
             return this;
         },
-        draw : function(context) {
+        draw : function(renderer) {
             var origin = this.widget.origin;
             var vector = this.widget.vector;
-            context.save();
-            context.lineWidth = 5;
-            context.strokeStyle = this.color;
-            context.translate(origin.x, origin.y);
-            context.beginPath();
-            context.moveTo(0, 0);
-            context.lineTo(vector.x, vector.y);
-            context.stroke();
-            context.closePath();
-            context.restore();
+            renderer.save();
+            renderer.setColor(this.color);
+            renderer.setLineWidth(5);
+            renderer.drawLine(origin.x, origin.y, vector.x, vector.y);
+            renderer.restore();
         }
     });
 
     pe.VelocityWidget = pe.VectorWidget.extend({
         init : function() {
-            this.parent("velocity", new me.Color(229, 216, 47, 0.3));
+            this._super(pe.VectorWidget, 'init', ["velocity", new me.Color(229, 216, 47, 0.3)]);
             this.scale = 30;
         },
         onVectorChanged : function(vector) {
@@ -495,7 +486,7 @@
 
     pe.ForceWidget = pe.VectorWidget.extend({
         init : function() {
-            this.parent("force", new me.Color(79, 214, 72, 0.3));
+            this._super(pe.VectorWidget, 'init', ["force", new me.Color(79, 214, 72, 0.3)]);
             this.scale = 300;
         },
         onVectorChanged : function(vector) {
@@ -510,7 +501,7 @@
 
     pe.VelocityVariationWidget = pe.WidgetBase.extend({
         init : function() {
-            this.parent("");
+            this._super(pe.WidgetBase, 'init', [""]);
             this.scale = 30;
 
             this.shape = new pe.VelocityVariationWidget.Helper(new me.Color(105, 190, 255, 0.3));
@@ -525,7 +516,8 @@
         onDrag : function(pos) {
             var object = this.object;
             if (object) {
-                pos.sub(object.pos);
+                pos.x -= object.pos.x + (object.width / 2);
+                pos.y -= object.pos.y + (object.height / 2);
                 var variation = object.angle - Math.atan2(-pos.y, pos.x);
                 if (variation < -Math.PI / 2) {
                     variation += 2 * Math.PI;
@@ -569,8 +561,8 @@
                 this.shape.set(object);
                 var angle = object.angle - object.angleVariation;
                 var radius = (object.speed + object.speedVariation) * this.scale;
-                var x = object.pos.x + Math.cos(angle) * radius;
-                var y = object.pos.y - Math.sin(angle) * radius;
+                var x = object.pos.x + (object.width / 2) + Math.cos(angle) * radius;
+                var y = object.pos.y + (object.height / 2) - Math.sin(angle) * radius;
                 this.dragHandler.setPosition(x, y);
             }
         }
@@ -578,7 +570,7 @@
 
     pe.VelocityVariationWidget.Helper = me.Renderable.extend({
         init : function(color) {
-            this.parent(new me.Vector2d(0, 0), 0, 0);
+            this._super(me.Renderable, 'init', [0, 0, 0, 0]);
             this.color = color.toRGBA();
             this.startAngle = 0;
             this.endAngle = 0;
@@ -588,17 +580,20 @@
             this.z = Infinity;
         },
         set : function(object) {
-            this.pos.setV(object.pos);
+            this.pos.set(object.pos.x + (object.width / 2), object.pos.y + (object.height / 2));
             this.startAngle = -(object.angle - object.angleVariation);
             this.endAngle = -(object.angle + object.angleVariation);
             this.minRadius = (object.speed - object.speedVariation) * this.scale;
             this.maxRadius = (object.speed + object.speedVariation) * this.scale;
         },
-        draw : function(context, rect) {
+        draw : function(renderer) {
+            var x = this.pos.x,
+                y = this.pos.y,
+                context = renderer.getContext();
+
             context.strokeStyle = this.color;
             context.fillStyle = this.color;
             context.beginPath();
-            var x = this.pos.x, y = this.pos.y;
             context.arc(x, y, this.maxRadius, this.startAngle, this.endAngle, true);
             if (this.minRadius < 0) {
                 context.arc(x, y, -this.minRadius, this.endAngle + Math.PI, this.startAngle + Math.PI);
